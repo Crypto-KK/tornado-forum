@@ -1,0 +1,8 @@
+aiomysql==0.0.21
+MarkupSafe==1.1.1
+peewee==3.14.0
+peewee-async==0.7.1
+PyMySQL==0.9.3
+tornado==6.1
+WTForms==2.3.3
+wtforms-tornado==0.0.2
