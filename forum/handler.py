@@ -4,6 +4,7 @@ from typing import Optional, Awaitable
 import tornado.web
 from aioredis import Redis
 
+from databases import MysqlPool
 from utils.utils import CJsonEncoder
 
 
@@ -42,3 +43,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.application.redis
 
 
+    @property
+    def db(self):
+        """获取mysql链接"""
+        return MysqlPool().get_manager
