@@ -1,6 +1,7 @@
 from apps.users.forms import SmsCodeForm, RegisterForm
 from apps.users.models import User
 from forum.handler import BaseHandler
+from apps.users.service import UserService
 
 
 class SmsHandler(BaseHandler):
@@ -34,18 +35,12 @@ class RegisterHandler(BaseHandler):
             else:
                 # 手机号是否重复
                 try:
-                    await self.application.mysql.get(
-                        User, mobile=mobile
-                    )
+                    await UserService.instance().get_user_by_mobile(mobile=mobile)
                     self.set_status(400)
                     self.response(msg="用户已存在")
                 except User.DoesNotExist:
-                    user = await self.application.mysql.create(
-                        User, mobile=mobile, password=password
-                    )
-                    self.response(data={
-                        "id": user.id
-                    }, msg="注册成功")
+                    user = await UserService.instance().insert_user(mobile=mobile, password=password)
+                    self.response(data=user, msg="注册成功")
         else:
             self.set_status(400)
             self.form_invalid_response(form, "注册失败")

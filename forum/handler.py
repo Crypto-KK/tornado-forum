@@ -3,10 +3,12 @@ from typing import Optional, Awaitable
 
 import tornado.web
 from aioredis import Redis
-from peewee_async import Manager
+
+from utils.utils import CJsonEncoder
 
 
 class BaseHandler(tornado.web.RequestHandler):
+
     def data_received(self, chunk: bytes) -> Optional[Awaitable[None]]:
         pass
 
@@ -25,9 +27,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def response(self, data=None, code=200, msg=""):
         if not data:
-            self.finish(dict(code=code, msg=msg))
+            self.finish(json.loads(json.dumps(dict(code=code, msg=msg), cls=CJsonEncoder)))
         else:
-            self.finish(dict(code=code, data=data, msg=msg))
+            self.finish(json.loads(json.dumps(dict(code=code, data=data, msg=msg), cls=CJsonEncoder)))
 
     def form_invalid_response(self, form, msg):
         err_data = {}
@@ -40,6 +42,3 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.application.redis
 
 
-    @property
-    def mysql(self) -> Manager:
-        return self.application.mysql

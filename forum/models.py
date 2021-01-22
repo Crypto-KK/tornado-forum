@@ -1,4 +1,4 @@
-from databases.mysql import database
+from databases.mysql import MysqlPool
 from peewee import *
 from datetime import datetime
 
@@ -15,4 +15,5 @@ class BaseModel(Model):
             "%Y-%m-%d %H:%M:%S")
 
     class Meta:
-        database = database
+        database = MysqlPool().get_conn
+        legacy_table_names = False

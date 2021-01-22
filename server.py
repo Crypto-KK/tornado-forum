@@ -9,10 +9,8 @@ from databases.redis import RedisPool
 from forum.urls import urlpattern
 from forum.settings import settings
 
-from databases.mysql import database
 
 import wtforms_json
-import peewee_async
 
 
 def make_app(loop):
@@ -21,9 +19,6 @@ def make_app(loop):
     apps = tornado.web.Application(urlpattern, debug=True, **settings)
     # 把loop传递过RedisPool获取一个链接
     apps.redis = RedisPool(loop=loop).get_conn()
-    objects = peewee_async.Manager(database)
-    database.set_allow_sync(False)
-    apps.mysql = objects
     return apps
 
 

@@ -7,8 +7,9 @@ settings = {
         "host": "127.0.0.1",
         "user": "root",
         "password": "998219",
-        "name": "forum",
-        "port": 3306
+        "port": 3306,
+        "charset": "utf8mb4",
+        "max_connections": 10
     },
     "redis": {
         "host": "localhost",
