@@ -1,7 +1,10 @@
-from apps.users.forms import SmsCodeForm, RegisterForm
+from apps.users.forms import SmsCodeForm, RegisterForm, LoginForm
 from apps.users.models import User
 from forum.handler import BaseHandler
 from apps.users.service import UserService
+from forum.settings import settings
+from datetime import datetime
+import jwt
 
 
 class SmsHandler(BaseHandler):
@@ -16,6 +19,34 @@ class SmsHandler(BaseHandler):
             self.set_status(400)
             self.form_invalid_response(form, "发送失败")
 
+
+class LoginHandler(BaseHandler):
+    """登录"""
+    async def post(self):
+        form = self.get_form(LoginForm)
+        if form.validate():
+            mobile = form.mobile.data
+            password = form.password.data
+            try:
+                user = await UserService.instance().get_user_by_mobile(mobile=mobile)
+                if not user.password.check_password(password):
+                    self.set_status(400)
+                    self.response(msg="密码错误")
+                else:
+                    payload = {
+                        "userid": user.id,
+                        "nickname": user.nickname,
+                        "exp": datetime.utcnow()
+                    }
+                    token = jwt.encode(payload, settings['jwt']['secret_key'], algorithm='HS256')
+                    self.response(data={
+                        "token": token,
+                        "id": user.id
+                    }, msg="登录成功")
+
+            except User.DoesNotExist:
+                self.set_status(400)
+                self.response(msg="用户不存在")
 
 
 class RegisterHandler(BaseHandler):

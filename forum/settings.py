@@ -14,6 +14,9 @@ settings = {
     "redis": {
         "host": "localhost",
         "port": 6379
+    },
+    "jwt": {
+        "secret_key": "secret"
     }
 }
 
