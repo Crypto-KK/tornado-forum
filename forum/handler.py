@@ -9,6 +9,15 @@ from utils.utils import CJsonEncoder
 
 
 class BaseHandler(tornado.web.RequestHandler):
+    def set_400_status(self):
+        self.set_status(400)
+
+    def set_401_status(self):
+        self.set_status(401)
+
+    def set_403_status(self):
+        self.set_status(403)
+
 
     def data_received(self, chunk: bytes) -> Optional[Awaitable[None]]:
         pass
