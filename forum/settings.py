@@ -1,7 +1,12 @@
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 settings = {
     "static_path": "../static",
     "static_url_prefix": "/static/",
     "template_path": "templates",
+    "MEDIA_ROOT": os.path.join(BASE_DIR, "media"),
     "db": {
         "database": "tornado_forum",
         "host": "127.0.0.1",
