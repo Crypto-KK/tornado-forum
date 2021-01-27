@@ -7,6 +7,7 @@ settings = {
     "static_url_prefix": "/static/",
     "template_path": "templates",
     "MEDIA_ROOT": os.path.join(BASE_DIR, "media"),
+    "default_page_size": 10,
     "db": {
         "database": "tornado_forum",
         "host": "127.0.0.1",

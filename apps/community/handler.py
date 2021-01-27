@@ -15,23 +15,28 @@ class GroupHandler(BaseHandler):
     async def get(self):
         category = self.get_argument("category", None)
         order = self.get_argument("order", None)
-        limit = self.get_argument("limit", None)
-        communities_query = CommunityGroup.extend()
+
+        current, page_size = self.get_paginate_data()
+        if not current:
+            return
+
+        query = CommunityGroup.extend()
         if category:
-            communities_query = communities_query.filter(CommunityGroup.category==category)
+            query = query.filter(CommunityGroup.category==category)
 
         if order:
             if order == "new":
-                communities_query = communities_query.order_by(CommunityGroup.created_at.desc())
+                query = query.order_by(CommunityGroup.created_at.desc())
             elif order == "hot":
-                communities_query = communities_query.order_by(CommunityGroup.member_nums.desc())
+                query = query.order_by(CommunityGroup.member_nums.desc())
 
-        if limit:
-            communities_query = communities_query.limit(int(limit))
+        count = await self.db.count(query)
 
-        groups = await self.db.execute(communities_query)
+        # 分页
+        query = query.paginate(current, page_size)
+        groups = await self.db.execute(query)
 
-        self.response_multi_object(data=groups, msg="查询成功")
+        self.response_pagination(data=groups, count=count, current=current, page_size=page_size, msg="查询成功")
 
 
     @authenticated_async

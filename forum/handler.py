@@ -37,12 +37,38 @@ class BaseHandler(tornado.web.RequestHandler):
         new_form = form.from_json(param)
         return new_form
 
+    def get_paginate_data(self):
+        """获取分页信息"""
+        current = self.get_argument("current", None)
+        page_size = self.get_argument("pageSize", None)
+        if not current:
+            current = 1
+        if not page_size:
+            page_size = self.settings["default_page_size"]
+        try:
+            int(current), int(page_size)
+        except ValueError:
+            self.set_400_status()
+            self.response(msg="参数错误", code=-1)
+            return None, None
+        else:
+            return (int(current), int(page_size),)
+
     def response(self, data=None, code=200, msg=""):
         """查询单个数据库对象或其他类型data的返回格式"""
         if not data:
             self.finish(json.loads(json.dumps(dict(code=code, msg=msg), cls=CJsonEncoder)))
         else:
             self.finish(json.loads(json.dumps(dict(code=code, data=data, msg=msg), cls=CJsonEncoder)))
+
+    def response_pagination(self, data=None, count=None, current=None, page_size=None, code=200, msg=""):
+        if not data:
+            self.finish(dict(data=[], count=count, current=current, page_size=page_size, code=code, msg=msg))
+        results = []
+        for d in data:
+            dic = model_to_dict(d)
+            results.append(dic)
+        self.finish(json.loads(json.dumps(dict(code=code, count=count, current=current, page_size=page_size, data=results, msg=msg), cls=CJsonEncoder)))
 
     def response_multi_object(self, data=None, code=200, msg=""):
         """查询多个数据库对象返回格式"""
