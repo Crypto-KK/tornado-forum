@@ -19,7 +19,7 @@ class CommunityGroup(BaseModel):
 
     @classmethod
     def extend(cls):
-        return cls.select(cls, User.id, User.nick_name).join(User)
+        return cls.select(cls, User.id, User.nickname).join(User)
 
 HANDLE_STATUS = (
     ("agree", "同意"),

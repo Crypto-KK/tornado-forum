@@ -3,6 +3,8 @@ from typing import Optional, Awaitable
 
 import tornado.web
 from aioredis import Redis
+from peewee_async import Manager
+from playhouse.shortcuts import model_to_dict
 
 from databases import MysqlPool
 from utils.utils import CJsonEncoder
@@ -36,12 +38,24 @@ class BaseHandler(tornado.web.RequestHandler):
         return new_form
 
     def response(self, data=None, code=200, msg=""):
+        """查询单个数据库对象或其他类型data的返回格式"""
         if not data:
             self.finish(json.loads(json.dumps(dict(code=code, msg=msg), cls=CJsonEncoder)))
         else:
             self.finish(json.loads(json.dumps(dict(code=code, data=data, msg=msg), cls=CJsonEncoder)))
 
+    def response_multi_object(self, data=None, code=200, msg=""):
+        """查询多个数据库对象返回格式"""
+        if not data:
+            self.finish(dict(data=[], code=code, msg=msg))
+        results = []
+        for d in data:
+            dic = model_to_dict(d)
+            results.append(dic)
+        self.finish(json.loads(json.dumps(dict(code=code, data=results, msg=msg), cls=CJsonEncoder)))
+
     def form_invalid_response(self, form, msg):
+        """表单校验不通过的返回格式"""
         err_data = {}
         for field in form.errors:
             err_data[field] = form.errors[field][0]
@@ -53,6 +67,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
 
     @property
-    def db(self):
+    def db(self) -> Manager:
         """获取mysql链接"""
         return MysqlPool().get_manager
